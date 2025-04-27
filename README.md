@@ -40,3 +40,101 @@ Before you begin, ensure you have met the following requirements:
 In the project root directory, run:
 ```bash
 flutter pub get
+
+Set Up Supabase
+Go to your Supabase dashboard.
+
+Create a new project and configure your database tables and storage buckets.
+
+Set up your Supabase URL and Supabase API Key in your Flutter app.
+
+Example of environment variables in .env:
+
+ini
+Copy
+Edit
+SUPABASE_URL=your-supabase-url
+SUPABASE_ANON_KEY=your-supabase-anon-key
+Run the App
+Connect your device or emulator, then run:
+
+bash
+Copy
+Edit
+flutter run
+Usage
+Once the app is running, users can:
+
+Sign up/login: Create an account or log in as an existing user.
+
+Browse cars: View the list of cars available for rental with detailed information.
+
+Make bookings: Select cars and book based on availability.
+
+Track reservations: View current and past reservations.
+
+Admin Functions:
+Add new cars: Admin users can add new cars to the rental system.
+
+View monthly revenue: Admin can track monthly revenue via the dashboard.
+
+Manage user profiles: Admin can manage customer profiles and their bookings.
+
+Database Schema
+The system uses the following core tables in Supabase:
+
+Cars: Contains information about each car available for rent.
+
+Fields: id, make, model, year, price_per_day, status, created_at, updated_at.
+
+Bookings: Stores the booking details of customers.
+
+Fields: id, user_id, car_id, start_date, end_date, total_price, status, created_at, updated_at.
+
+Users: User profile data.
+
+Fields: id, email, name, profile_picture_url.
+
+Monthly Revenue Dashboard: A view in Supabase for calculating the total revenue each month.
+
+Contributing
+If you'd like to contribute to the development of the Car Rental Management System, feel free to fork the repository and submit pull requests. Please ensure that your code follows the existing style and passes the tests before submitting.
+
+Steps to Contribute:
+Fork the repository.
+
+Create a new branch (git checkout -b feature-xyz).
+
+Make your changes.
+
+Commit your changes (git commit -am 'Add new feature').
+
+Push to the branch (git push origin feature-xyz).
+
+Submit a pull request.
+
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Acknowledgments
+Flutter for providing the framework.
+
+Supabase for offering backend-as-a-service.
+
+PostgreSQL for the powerful database engine.
+
+The open-source community for their contributions.
+
+pgsql
+Copy
+Edit
+
+This version uses proper Markdown formatting with headers (`##`) and includes the setup, usage, database schema, contributing instructions, license, and acknowledgments for your `README.md` file.
+
+
+
+
+
+
+
+
