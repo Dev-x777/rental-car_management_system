@@ -35,3 +35,8 @@ Before you begin, ensure you have met the following requirements:
    ```bash
    git clone https://github.com/Dev-x777/rental-car_management_system.git
    cd rental-car_management_system
+
+   ### Install Flutter Dependencies
+In the project root directory, run:
+```bash
+flutter pub get
