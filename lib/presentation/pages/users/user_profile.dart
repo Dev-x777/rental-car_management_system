@@ -7,7 +7,6 @@ import '../../../data/models/users.dart';
 import '../auth/login_page.dart';
 import '../car_list_screen.dart';
 
-
 class UserProfile extends StatefulWidget {
   final UserModel userData;
 
@@ -33,7 +32,6 @@ class _UserProfileState extends State<UserProfile> {
     _fetchBookingHistory();
   }
 
-  // Fetch the profile image URL from the users table
   Future<void> _fetchProfileImage() async {
     try {
       final response = await _supabase
@@ -52,7 +50,6 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
-  // Fetch the user's booking history from the bookings table
   Future<void> _fetchBookingHistory() async {
     setState(() {
       _isLoading = true;
@@ -64,13 +61,22 @@ class _UserProfileState extends State<UserProfile> {
           .select('*, cars(brand, model, category)')
           .eq('user_id', widget.userData.id);
 
-      setState(() {
-        _bookingHistory = (response as List<dynamic>)
-            .map((json) => Booking.fromJson(json as Map<String, dynamic>))
-            .toList();
-      });
+      if (response != null) {
+        setState(() {
+          _bookingHistory = (response as List<dynamic>)
+              .map((json) => Booking.fromJson(json as Map<String, dynamic>))
+              .toList();
+        });
+      } else {
+        setState(() {
+          _bookingHistory = [];
+        });
+      }
     } catch (e) {
       debugPrint("Error fetching booking history: $e");
+      setState(() {
+        _bookingHistory = [];
+      });
     } finally {
       setState(() {
         _isLoading = false;
@@ -78,7 +84,6 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
-  // Open a bottom sheet to choose an image source (gallery or camera)
   Future<void> _pickImage() async {
     try {
       final imageSource = await showModalBottomSheet<ImageSource>(
@@ -135,7 +140,6 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
-  // Upload the selected image to Supabase Storage and update the profile photo in the database
   Future<void> _uploadImage() async {
     if (_imageFile == null) {
       await _pickImage();
@@ -154,17 +158,14 @@ class _UserProfileState extends State<UserProfile> {
     try {
       final fileName = '${widget.userData.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-      // Upload file to storage
       await _supabase.storage
           .from('profilephotos')
           .upload(fileName, _imageFile!, fileOptions: const FileOptions(upsert: true));
 
-      // Get public URL for the uploaded file
       final publicUrl = _supabase.storage
           .from('profilephotos')
           .getPublicUrl(fileName);
 
-      // Update the profile photo URL in the database
       final response = await _supabase
           .from('users')
           .update({'profile_photo': publicUrl})
@@ -195,7 +196,6 @@ class _UserProfileState extends State<UserProfile> {
     }
   }
 
-  // Update password functionality (no hashing, directly store password)
   Future<void> _updatePassword() async {
     final TextEditingController passwordController = TextEditingController();
 
@@ -218,19 +218,18 @@ class _UserProfileState extends State<UserProfile> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(), // Close the dialog if "Cancel" is pressed
+            onPressed: () => Navigator.of(context).pop(),
             child: const Text('Cancel', style: TextStyle(color: Colors.tealAccent)),
           ),
           TextButton(
             onPressed: () async {
-              // Perform password update logic here
               try {
                 final response = await _supabase.from('users').update({
-                  'password_hash': passwordController.text, // Store password directly (no hashing)
+                  'password_hash': passwordController.text,
                 }).eq('id', widget.userData.id);
 
                 if (response != null) {
-                  Navigator.of(context).pop(); // Close dialog after successful update
+                  Navigator.of(context).pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Password updated successfully")),
                   );
@@ -248,7 +247,6 @@ class _UserProfileState extends State<UserProfile> {
     );
   }
 
-  // Logout functionality
   Future<void> _logout() async {
     bool? logoutConfirmed = await showDialog<bool>(
       context: context,
@@ -257,11 +255,11 @@ class _UserProfileState extends State<UserProfile> {
         title: const Text('Are you sure you want to logout?', style: TextStyle(color: Colors.white)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // No
+            onPressed: () => Navigator.of(context).pop(false),
             child: const Text('No', style: TextStyle(color: Colors.tealAccent)),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // Yes
+            onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Yes', style: TextStyle(color: Colors.tealAccent)),
           ),
         ],
@@ -272,7 +270,7 @@ class _UserProfileState extends State<UserProfile> {
       await _supabase.auth.signOut();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginPage()), // Navigate to Login Page
+        MaterialPageRoute(builder: (_) => const LoginPage()),
       );
     }
   }
@@ -428,6 +426,8 @@ class _UserProfileState extends State<UserProfile> {
         return Card(
           color: const Color(0xFF2C2C2C),
           margin: const EdgeInsets.symmetric(vertical: 8),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          elevation: 4,
           child: ListTile(
             title: Text('${booking.carBrand} ${booking.carModel}', style: const TextStyle(color: Colors.white)),
             subtitle: Text('Category: ${booking.carCategory}', style: const TextStyle(color: Colors.white70)),
@@ -443,7 +443,7 @@ class _UserProfileState extends State<UserProfile> {
       child: ElevatedButton(
         onPressed: _logout,
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red, // Red color for logout button
+          backgroundColor: Colors.red,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 12),
         ),

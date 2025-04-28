@@ -131,7 +131,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                   ),
                   child: const Text(
                     'Delete User',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ],

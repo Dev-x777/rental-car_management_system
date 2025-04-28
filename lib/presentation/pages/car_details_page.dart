@@ -5,6 +5,8 @@ import 'package:rentalcar_1/presentation/widgets/more_card.dart';
 import 'package:rentalcar_1/presentation/widgets/car_card.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'auth/login_page.dart';
+
 class CarDetailsPage extends StatefulWidget {
   final String carId;
   final Car car;
@@ -34,8 +36,7 @@ class _CarDetailsPageState extends State<CarDetailsPage>
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _fadeAnimation =
-        CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
   }
@@ -102,8 +103,7 @@ class _CarDetailsPageState extends State<CarDetailsPage>
         return Scaffold(
           backgroundColor: const Color(0xFF121212),
           appBar: AppBar(
-            title:
-            const Text('Car Details', style: TextStyle(color: Colors.white)),
+            title: const Text('Car Details', style: TextStyle(color: Colors.white)),
             backgroundColor: const Color(0xFF1E1E1E),
             iconTheme: const IconThemeData(color: Colors.white),
           ),
@@ -160,11 +160,9 @@ class _CarDetailsPageState extends State<CarDetailsPage>
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          CarDetailsPage(
-                                            carId: otherCar.id!,
-                                            car: otherCar,
-                                          ),
+                                      builder: (context) => CarDetailsPage(
+                                          carId: otherCar.id!,
+                                          car: otherCar),
                                     ),
                                   );
                                 },
@@ -184,6 +182,11 @@ class _CarDetailsPageState extends State<CarDetailsPage>
                 ],
               ),
             ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: _showReviewDialog,
+            backgroundColor: Colors.tealAccent,
+            child: const Icon(Icons.rate_review, color: Colors.black),
           ),
         );
       },
@@ -352,12 +355,12 @@ class _CarDetailsPageState extends State<CarDetailsPage>
         const SizedBox(width: 16),
         Expanded(
           child: ElevatedButton(
-            onPressed:
-            (car.availability ?? false) ? () => _bookCar(context, car) : null,
+            onPressed: (car.availability ?? false)
+                ? () => _bookCar(context, car)
+                : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor: (car.availability ?? false)
-                  ? Colors.tealAccent
-                  : Colors.grey,
+              backgroundColor:
+              (car.availability ?? false) ? Colors.tealAccent : Colors.grey,
               foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -417,4 +420,107 @@ class _CarDetailsPageState extends State<CarDetailsPage>
       ),
     );
   }
+
+  void _showReviewDialog() {
+    int selectedRating = 5;
+    TextEditingController reviewController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text('Leave a Review', style: TextStyle(color: Colors.white)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<int>(
+                value: selectedRating,
+                dropdownColor: const Color(0xFF1E1E1E),
+                decoration: const InputDecoration(
+                  labelText: 'Rating',
+                  labelStyle: TextStyle(color: Colors.tealAccent),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.tealAccent),
+                  ),
+                ),
+                items: List.generate(5, (index) => index + 1)
+                    .map((rating) => DropdownMenuItem(
+                  value: rating,
+                  child: Text('$rating Star${rating > 1 ? 's' : ''}', style: const TextStyle(color: Colors.white)),
+                ))
+                    .toList(),
+                onChanged: (value) {
+                  selectedRating = value ?? 5;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: reviewController,
+                style: const TextStyle(color: Colors.white),
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: 'Write your review...',
+                  hintStyle: TextStyle(color: Colors.grey[600]),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.tealAccent),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.tealAccent)),
+            ),
+            ElevatedButton(
+              onPressed: () => _submitReview(selectedRating, reviewController.text),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.tealAccent),
+              child: const Text('Send', style: TextStyle(color: Colors.black)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _submitReview(int rating, String reviewText) async {
+    final userId = GlobalUser.getUserId(); // Get from your GlobalUser class
+
+    if (userId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must be logged in to submit a review')),
+      );
+      Navigator.pop(context);
+      return;
+    }
+
+    if (reviewText.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review text cannot be empty')),
+      );
+      return;
+    }
+
+    try {
+      await Supabase.instance.client.from('reviews').insert({
+        'car_id': widget.carId,
+        'user_id': userId,
+        'rating': rating,
+        'review_text': reviewText.trim(),
+      });
+
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review submitted successfully')),
+      );
+      setState(() {}); // Refresh to show new review
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to submit review: $error')),
+      );
+    }
+  }
+
 }

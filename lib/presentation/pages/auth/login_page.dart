@@ -6,6 +6,18 @@ import '../../../data/models/users.dart';
 import '../admin/admin_dashboard.dart';
 import '../car_list_screen.dart';
 
+// Global class to store the user ID
+class GlobalUser {
+  static String userId = ''; // Global variable to store user ID
+
+  static setUserId(String id) {
+    userId = id;
+  }
+
+  static String getUserId() {
+    return userId;
+  }
+}
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -60,6 +72,10 @@ class _LoginPageState extends State<LoginPage> with SingleTickerProviderStateMix
         _showError('Incorrect password');
       } else {
         final user = UserModel.fromJson(userData);
+
+        // Store the user ID globally
+        GlobalUser.setUserId(user.id);
+
         if (user.role == 'admin') {
           Navigator.pushReplacement(
             context,

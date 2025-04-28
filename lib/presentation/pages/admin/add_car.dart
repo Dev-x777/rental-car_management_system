@@ -48,12 +48,14 @@ class _AddCarPageState extends State<AddCarPage> {
           .from('car.images')
           .upload(fileName, _imageFile!);
 
-      final publicUrl = _supabase.storage.from('car.images').getPublicUrl(response);
+      // Handle upload success by getting the public URL
+      final publicUrl = _supabase.storage.from('car.images').getPublicUrl(fileName).toString();
       setState(() => _imageUrl = publicUrl);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Image uploaded successfully')),
       );
     } catch (e) {
+      // Handle errors in the try block
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error uploading image: ${e.toString()}')),
       );
@@ -71,7 +73,7 @@ class _AddCarPageState extends State<AddCarPage> {
           'category': _categoryController.text,
           'daily_rate': double.tryParse(_dailyRateController.text),
           'availability': _isAvailable,
-          'image_url': _imageUrl,
+          'image_url': _imageUrl,  // Store the image URL in the database
         });
 
         Navigator.pop(context);

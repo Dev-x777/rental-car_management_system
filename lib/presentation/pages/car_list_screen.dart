@@ -104,44 +104,52 @@ class _CarListScreenState extends State<CarListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
-      appBar: AppBar(
-        title: Text(
-          'Welcome, ${widget.userData.fullName}',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.white,
+      appBar:PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          backgroundColor: const Color(0xFF1E1E1E),
+          elevation: 0,
+          automaticallyImplyLeading: false,
+          titleSpacing: 20,
+          title: Text(
+            '${_getGreeting()}, ${widget.userData.fullName}',
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        backgroundColor: const Color(0xFF1E1E1E),
-        elevation: 0,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: GestureDetector(
-              onTap: () async {
-                await Supabase.instance.client.auth.signOut();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (_) => UserProfile(userData: widget.userData),
-                  ),
-                      (route) => false,
-                );
-              },
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.tealAccent.withOpacity(0.2),
-                backgroundImage: _profileImageUrl != null
-                    ? NetworkImage(_profileImageUrl!)
-                    : null,
-                child: _profileImageUrl == null
-                    ? const Icon(Icons.person, color: Colors.tealAccent, size: 24)
-                    : null,
+
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: GestureDetector(
+                onTap: () async {
+                  await Supabase.instance.client.auth.signOut();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (_) => UserProfile(userData: widget.userData),
+                    ),
+                        (route) => false,
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.tealAccent.withOpacity(0.15),
+                  backgroundImage: _profileImageUrl != null
+                      ? NetworkImage(_profileImageUrl!)
+                      : null,
+                  child: _profileImageUrl == null
+                      ? const Icon(Icons.person, color: Colors.tealAccent, size: 26)
+                      : null,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
+
       body: Column(
         children: [
           _buildFilterBar(),
@@ -294,5 +302,18 @@ class _CarListScreenState extends State<CarListScreen> {
         ),
       ),
     );
+  }
+
+}
+String _getGreeting() {
+  final hour = DateTime.now().hour;
+  if (hour >= 5 && hour < 12) {
+    return 'Good Morning';
+  } else if (hour >= 12 && hour < 17) {
+    return 'Good Afternoon';
+  } else if (hour >= 17 && hour < 20) {
+    return 'Good Evening';
+  } else {
+    return 'Sweet Dreams';
   }
 }

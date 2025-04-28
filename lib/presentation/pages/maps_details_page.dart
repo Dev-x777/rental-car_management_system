@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:rentalcar_1/data/models/car.dart';
+import 'booking_page.dart'; // Import the BookingPage
 
 class MapsDetailsPage extends StatelessWidget {
   final Car car;
@@ -145,15 +146,28 @@ Widget carDetailsCard({required Car car}) {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                      ),
-                      child: const Text(
-                        'Book Now',
-                        style: TextStyle(color: Colors.white),
-                      ),
+                    Builder(
+                      builder: (BuildContext context) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            // Now that context is valid, navigate to BookingPage
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => BookingPage(
+                                  carId: car.id, // Pass the car ID here
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                          ),
+                          child: const Text(
+                            'Book Now',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -189,8 +203,7 @@ Widget featureIcons(Car car) {
     children: [
       featureIcon(Icons.local_gas_station, 'Fuel', 'Petrol'),
       featureIcon(Icons.people, 'Seats',  '5'),
-      featureIcon(Icons.speed, 'Mileage',
-          'N/A'),
+      featureIcon(Icons.speed, 'Mileage', 'N/A'),
     ],
   );
 }
