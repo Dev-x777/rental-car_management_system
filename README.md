@@ -21,7 +21,7 @@ The **Car Rental Management System** is a comprehensive solution designed to str
 - **Storage**: Supabase Storage for profile photos and car images
 - **Other**: Dart, SQL
 
-### Installation
+### Installationn
 
 #### Prerequisites
 Before you begin, ensure you have met the following requirements:
