@@ -60,7 +60,8 @@ class _CarManagementPageState extends State<CarManagementPage> {
         'availability': car.availability,
         'image_url': car.imageUrl,
       }).eq('id', car.id);
-      _loadCars();
+
+      _loadCars();  // Reload the car list to reflect the changes
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Car updated successfully!')),
       );
@@ -230,13 +231,22 @@ class _CarManagementPageState extends State<CarManagementPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    car.brand = brandController.text;
-                    car.model = modelController.text;
-                    car.year = int.tryParse(yearController.text);
-                    car.licensePlate = licensePlateController.text;
-                    car.category = categoryController.text;
-                    car.dailyRate = double.tryParse(dailyRateController.text);
+                    // Use existing values from DB if the field is empty
+                    car.brand = brandController.text.isNotEmpty ? brandController.text : car.brand;
+                    car.model = modelController.text.isNotEmpty ? modelController.text : car.model;
+                    car.year = yearController.text.isNotEmpty ? int.tryParse(yearController.text) : car.year;
+                    car.licensePlate = licensePlateController.text.isNotEmpty ? licensePlateController.text : car.licensePlate;
+                    car.category = categoryController.text.isNotEmpty ? categoryController.text : car.category;
+                    car.dailyRate = dailyRateController.text.isNotEmpty ? double.tryParse(dailyRateController.text) : car.dailyRate;
                     car.availability = isAvailable;
+
+                    // Ensure the required fields are not null
+                    if (car.year == null || car.dailyRate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please enter valid year and daily rate')),
+                      );
+                      return;
+                    }
 
                     _updateCar(car);
                     Navigator.pop(context);
@@ -261,10 +271,13 @@ class _CarManagementPageState extends State<CarManagementPage> {
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.tealAccent),
+          labelStyle: const TextStyle(color: Colors.white54),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: Colors.white54),
+          ),
           filled: true,
-          fillColor: Colors.black12,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          fillColor: const Color(0xFF2A2A2A),
         ),
       ),
     );

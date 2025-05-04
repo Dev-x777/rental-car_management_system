@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rentalcar_1/data/models/car.dart';
+import 'package:rentalcar_1/presentation/pages/booking_page.dart';
 import 'package:rentalcar_1/presentation/pages/maps_details_page.dart';
 import 'package:rentalcar_1/presentation/widgets/more_card.dart';
 import 'package:rentalcar_1/presentation/widgets/car_card.dart';
@@ -297,7 +298,7 @@ class _CarDetailsPageState extends State<CarDetailsPage>
             _buildSpecItem('Category', car.category),
             _buildSpecItem('License Plate', car.licensePlate),
             _buildSpecItem(
-                'Daily Rate', '\$${car.dailyRate?.toStringAsFixed(2)}'),
+                'Daily Rate', '\Rs ${car.dailyRate?.toStringAsFixed(2)}'),
             _buildSpecItem(
                 'Availability',
                 (car.availability ?? false)
@@ -323,7 +324,7 @@ class _CarDetailsPageState extends State<CarDetailsPage>
             )),
         const SizedBox(height: 8),
         Text(
-          'The ${car.brand} ${car.model} is available for rent at \$${car.dailyRate?.toStringAsFixed(2)} per day. '
+          'The ${car.brand} ${car.model} is available for rent at \Rs ${car.dailyRate?.toStringAsFixed(2)} per day. '
               'This ${car.year ?? 'well-maintained'} vehicle comes with all standard features '
               'and provides excellent driving experience. Book now to enjoy your journey!',
           style: TextStyle(color: Colors.grey[400], fontSize: 16),
@@ -356,16 +357,24 @@ class _CarDetailsPageState extends State<CarDetailsPage>
         Expanded(
           child: ElevatedButton(
             onPressed: (car.availability ?? false)
-                ? () => _bookCar(context, car)
+                ? () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => BookingPage(
+                    carId: car.id, // Pass the car ID here
+                  ),
+                ),
+              );
+            }
                 : null,
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-              (car.availability ?? false) ? Colors.tealAccent : Colors.grey,
+              backgroundColor: (car.availability ?? false) ? Colors.tealAccent : Colors.grey,
               foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
             child: const Text('BOOK NOW'),
-          ),
+          )
+
         ),
       ],
     );
